@@ -3,7 +3,7 @@ unit UKNN;
 interface
 
 uses
-  System.Generics.Collections, Classes,
+  System.Generics.Collections, Classes, System.Generics.Defaults,
   System.SysUtils, System.Variants, Math;
 
 type
@@ -17,6 +17,11 @@ type
 
     property DataClass: Integer read FDataClass write FDataClass;
     property DataCollection: TList<Double> read FDataCollection;
+  end;
+
+  TComputedResult = class
+    DataClass: Integer;
+    Distance: Double;
   end;
 
 
@@ -64,14 +69,12 @@ begin
     raise Exception.Create('Developer - Samples "A" and "B" must be same size.');
 
   Score  := 0;
-  Result := 0;
-
   for i := 0 to Pred(Total) do
   begin
     Score := Score + Power(DataA[i]-DataB[i], 2);
   end;
 
-  Result := Sqrt(Score);
+  Result := RoundTo(Sqrt(Score), -4);
 end;
 
 procedure TKNN.clear_data;
@@ -94,18 +97,31 @@ end;
 function TKNN.predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): Integer;
 var
   DataPoint: TDataPoint;
-  Distance, SumDist, MostDist: Double;
-  ComputedResults: TStringList;
-  ClassScores: TDictionary<Integer, Double>;
-  i, DataClass: Integer;
+  Distance, MostFreq: Double;
+
+  ComputedResults: TObjectList<TComputedResult>;
+  ClassFrequences: TDictionary<Integer, Integer>;
+  ClassFreq, i, DataClass: Integer;
+  CP: TComputedResult;
+  Comparer: IComparer<TComputedResult>;
+
 
 begin
   if FDataPoints.Count = 0 then
     raise Exception.Create('Developer - No data in this model to predict. Add data.');
 
+
+  Comparer := TComparer<TComputedResult>.Construct (
+  function(const Left, Right: TComputedResult): Integer
+  begin
+    Result := CompareValue(Left.Distance, Right.Distance);
+  end);
+
+
+
   Result          := -1;
-  ComputedResults := TStringList.Create;
-  ClassScores     := TDictionary<Integer, Double>.Create;
+  ComputedResults := TObjectList<TComputedResult>.Create;
+  ClassFrequences     := TDictionary<Integer, Integer>.Create;
 
   try
     for DataPoint in FDataPoints do
@@ -113,42 +129,48 @@ begin
       Distance := calc_euclidean_distance(UnseeData, DataPoint.DataCollection.ToArray);
 
       // Insert distance and class to list
-      ComputedResults.Values[FloatToStr(Distance)] := IntToStr(DataPoint.DataClass);
+      CP := TComputedResult.Create;
+      CP.DataClass := DataPoint.DataClass;
+      CP.Distance  := Distance;
+      ComputedResults.Add(CP);
     end;
 
-    // Sort list by "Distance" in Asc. Could be Desc....
-    // The goal is get most "K" distances scores
-    ComputedResults.Sort;
+    // Sort list by "Distance"
+    ComputedResults.Sort(Comparer);
 
     // Extract "K" results to begin predict
-    for i := Pred(ComputedResults.Count) downto K_value do
+    i := 0;
+    for CP in ComputedResults do
     begin
-      DataClass := StrToInt(ComputedResults.ValueFromIndex[i]);
-      Distance  := StrToFloat(ComputedResults.Names[i]);
+      Inc(i);
+      if i > K_value then
+        Break;
 
-      if ClassScores.TryGetValue(DataClass, SumDist) then
-        SumDist := SumDist + Distance
+      DataClass := CP.DataClass;
+
+      if ClassFrequences.TryGetValue(DataClass, ClassFreq) then
+        Inc(ClassFreq)
       else
-        SumDist := Distance;
+        ClassFreq := 1;
 
-      ClassScores.AddOrSetValue(DataClass, SumDist);
+      ClassFrequences.AddOrSetValue(DataClass, ClassFreq);
     end;
 
     // Check the most class score and retur class predicted
-    MostDist := 0;
-    for DataClass in ClassScores.Keys do
+    MostFreq := 0;
+    for DataClass in ClassFrequences.Keys do
     begin
-      if ClassScores.TryGetValue(DataClass, SumDist) and
-         (SumDist > MostDist) then
+      if ClassFrequences.TryGetValue(DataClass, ClassFreq) and
+         (ClassFreq > MostFreq) then
       begin
-        MostDist := SumDist;
+        MostFreq := ClassFreq;
         Result   := DataClass;
       end;
     end;
 
   finally
     ComputedResults.Free;
-    ClassScores.Free;
+    ClassFrequences.Free;
   end;
 end;
 
