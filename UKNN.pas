@@ -24,6 +24,11 @@ type
     Distance: Double;
   end;
 
+  TKNN_Result = record
+    ClassPredicted: Integer;
+    Classes: TArray<Integer>;
+    Frequencies: TArray<Integer>;
+  end;
 
 
   TKNN = class
@@ -37,8 +42,7 @@ type
 
     procedure clear_data;
     procedure add_training_data(DataClass: Integer; DataCollection: TArray<Double>);
-    function predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): Integer;
-
+    function predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): TKNN_Result;
   end;
 
 
@@ -94,7 +98,7 @@ begin
 end;
 
 
-function TKNN.predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): Integer;
+function TKNN.predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): TKNN_Result;
 var
   DataPoint: TDataPoint;
   Distance, MostFreq: Double;
@@ -119,9 +123,9 @@ begin
 
 
 
-  Result          := -1;
-  ComputedResults := TObjectList<TComputedResult>.Create;
-  ClassFrequences     := TDictionary<Integer, Integer>.Create;
+  Result.ClassPredicted := -1;
+  ComputedResults       := TObjectList<TComputedResult>.Create;
+  ClassFrequences       := TDictionary<Integer, Integer>.Create;
 
   try
     for DataPoint in FDataPoints do
@@ -138,7 +142,8 @@ begin
     // Sort list by "Distance"
     ComputedResults.Sort(Comparer);
 
-    // Extract "K" results to begin predict
+    // Computer frequency of each class until reach
+    // K-value
     i := 0;
     for CP in ComputedResults do
     begin
@@ -156,17 +161,26 @@ begin
       ClassFrequences.AddOrSetValue(DataClass, ClassFreq);
     end;
 
-    // Check the most class score and retur class predicted
-    MostFreq := 0;
+    // Check the less class score and return class predicted
+    MostFreq := -1;
     for DataClass in ClassFrequences.Keys do
     begin
-      if ClassFrequences.TryGetValue(DataClass, ClassFreq) and
-         (ClassFreq > MostFreq) then
+      if ClassFrequences.TryGetValue(DataClass, ClassFreq) then
       begin
-        MostFreq := ClassFreq;
-        Result   := DataClass;
+        if (ClassFreq > MostFreq) then
+        begin
+          MostFreq := ClassFreq;
+          Result.ClassPredicted := DataClass;
+        end
+        else
+        if ClassFreq = MostFreq then
+          raise Exception.Create('Inconclusive result. Add more data and run again');
       end;
     end;
+
+    Result.Classes     := ClassFrequences.Keys.ToArray;
+    Result.Frequencies := ClassFrequences.Values.ToArray;
+
 
   finally
     ComputedResults.Free;

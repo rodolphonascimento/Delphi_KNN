@@ -41,7 +41,6 @@ object FrmMain: TFrmMain
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Data to train'
-      ExplicitHeight = 296
       object DBGrid1: TDBGrid
         Left = 0
         Top = 0
@@ -201,6 +200,51 @@ object FrmMain: TFrmMain
         Text = '4'
       end
     end
+    object TabSheet3: TTabSheet
+      Caption = 'Result'
+      ImageIndex = 2
+      object Panel3: TPanel
+        Left = 0
+        Top = 0
+        Width = 733
+        Height = 49
+        Align = alTop
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGreen
+        Font.Height = -19
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Chart1: TChart
+        Left = 0
+        Top = 49
+        Width = 733
+        Height = 206
+        Title.Text.Strings = (
+          'TChart')
+        Align = alClient
+        TabOrder = 1
+        DefaultCanvas = 'TGDIPlusCanvas'
+        PrintMargins = (
+          15
+          36
+          15
+          36)
+        ColorPaletteIndex = 13
+        object Series1: TBarSeries
+          BarBrush.BackColor = clDefault
+          ColorEachPoint = True
+          Marks.Visible = False
+          Marks.Callout.Length = 8
+          XValues.Name = 'X'
+          XValues.Order = loAscending
+          YValues.Name = 'Bar'
+          YValues.Order = loNone
+        end
+      end
+    end
   end
   object Panel2: TPanel
     Left = 0
@@ -209,9 +253,6 @@ object FrmMain: TFrmMain
     Height = 41
     Align = alBottom
     TabOrder = 2
-    ExplicitLeft = 288
-    ExplicitTop = 184
-    ExplicitWidth = 185
     DesignSize = (
       741
       41)
@@ -229,6 +270,7 @@ object FrmMain: TFrmMain
   object CdsCustomers: TClientDataSet
     Aggregates = <>
     Params = <>
+    AfterScroll = CdsCustomersAfterScroll
     Left = 96
     Top = 312
     object CdsCustomersSalary: TCurrencyField

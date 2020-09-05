@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB, System.IOUtils,
   Datasnap.DBClient, Vcl.ComCtrls, Vcl.Grids, Vcl.DBGrids,
-  Vcl.StdCtrls, UKNN, StrUtils;
+  Vcl.StdCtrls, UKNN, StrUtils, VclTee.TeeGDIPlus, VCLTee.TeEngine,
+  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart;
 
 type
   TFrmMain = class(TForm)
@@ -36,10 +37,15 @@ type
     Button2: TButton;
     Kvalue: TEdit;
     Label4: TLabel;
+    TabSheet3: TTabSheet;
+    Panel3: TPanel;
+    Chart1: TChart;
+    Series1: TBarSeries;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure CdsCustomersAfterScroll(DataSet: TDataSet);
   private
     { Private declarations }
     KNN: TKNN;
@@ -62,7 +68,8 @@ end;
 procedure TFrmMain.Button2Click(Sender: TObject);
 var
   Data, NewData: TArray<Double>;
-  Result: Integer;
+  Result: TKNN_Result;
+  I, DataClass: Integer;
 
 begin
   try
@@ -95,17 +102,39 @@ begin
 
     Result := KNN.predict_new_entry(NewData, StrToInt(Kvalue.Text));
 
-    if Result = 1 then
-      MessageDlg('Good Payer. Grant credit!',
-                 mtConfirmation, [mbOK], 0, mbOK)
+    if Result.ClassPredicted = 1 then
+    begin
+      Panel3.Caption := 'Good Payer. Grant credit!';
+      Panel3.Font.Color := clBlue;
+    end
     else
-      MessageDlg('Bad Payer. Revoke credit!',
-                 mtError, [mbOK], 0, mbOK);
+    begin
+      Panel3.Caption := 'Bad Payer. Revoke credit!';
+      Panel3.Font.Color := clRed;
+    end;
+
+    Series1.Clear;
+
+    for i := 0 to Pred(Length(Result.Classes)) do
+    begin
+      DataClass := Result.Classes[i];
+      if DataClass = 1 then
+        Series1.AddY(Result.Frequencies[i], IntToStr(DataClass), clGreen)
+      else
+        Series1.AddY(Result.Frequencies[i], IntToStr(DataClass), clRed);
+    end;
+
+    PageControl1.ActivePageIndex := 2;
 
   finally
     CdsCustomers.EnableControls;
     CdsCustomers.First;
   end;
+end;
+
+procedure TFrmMain.CdsCustomersAfterScroll(DataSet: TDataSet);
+begin
+  Panel2.Caption := IntToStr(CdsCustomers.RecordCount) + ' customers';
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
@@ -116,6 +145,8 @@ begin
     CdsCustomers.CreateDataSet;
 
   KNN := TKNN.Create;
+
+  PageControl1.ActivePageIndex := 0;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
