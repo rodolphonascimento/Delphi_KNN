@@ -30,6 +30,7 @@ type
 
   TKNN_Result = record
     ClassPredicted: Integer;
+    Accuracy: Double;
     Classes: TArray<Integer>;
     Frequencies: TArray<Integer>;
   end;
@@ -39,6 +40,8 @@ type
   private
     FDataPoints: TObjectList<TDataPoint>;
     function calc_euclidean_distance(DataA, DataB: TArray<Double>): Double;
+
+    procedure compute_accuracy(var Result: TKNN_Result);
 
   public
     constructor Create;
@@ -88,6 +91,30 @@ end;
 procedure TKNN.clear_data;
 begin
   FDataPoints.Clear;
+end;
+
+procedure TKNN.compute_accuracy(var Result: TKNN_Result);
+var
+  i, total: Integer;
+
+begin
+  total := 0;
+  Result.Accuracy := 0;
+
+
+  for i := 0  to Pred(Length(Result.Frequencies)) do
+  begin
+    total := total + Result.Frequencies[i];
+  end;
+
+  for i := 0  to Pred(Length(Result.Classes)) do
+  begin
+    if Result.Classes[i] = Result.ClassPredicted then
+    begin
+      Result.Accuracy := RoundTo((Result.Frequencies[i] / total) * 100, -2);
+      Break;
+    end;
+  end;
 end;
 
 constructor TKNN.Create;
@@ -184,6 +211,8 @@ begin
 
     Result.Classes     := ClassFrequences.Keys.ToArray;
     Result.Frequencies := ClassFrequences.Values.ToArray;
+
+    compute_accuracy(Result);
 
 
   finally

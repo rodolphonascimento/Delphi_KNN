@@ -128,6 +128,8 @@ begin
       Panel3.Font.Color := clRed;
     end;
 
+    Panel3.Caption := Panel3.Caption + '. Accuracy: ' + FloatToStr(Result.Accuracy) + '%';
+
 
     // Plot selection criteria take by K-NN
     Series1.Clear;
@@ -158,7 +160,6 @@ end;
 procedure TFrmMain.CdsCustomersAfterScroll(DataSet: TDataSet);
 begin
   Panel2.Caption := IntToStr(CdsCustomers.RecordCount) + ' customers';
-  Kvalue.Text    := IntToStr(Round(CdsCustomers.RecordCount / 100 * 30));
 end;
 
 procedure TFrmMain.FilterChange(Sender: TObject);
@@ -179,6 +180,9 @@ begin
     CdsCustomers.LoadFromFile('CdsCustomers.cds')
   else
     CdsCustomers.CreateDataSet;
+
+  Kvalue.Text := IntToStr(Round(CdsCustomers.RecordCount / 100 * 30));
+
 
   KNN := TKNN.Create;
 
