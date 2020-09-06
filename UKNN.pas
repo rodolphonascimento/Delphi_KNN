@@ -1,4 +1,8 @@
 unit UKNN;
+//
+// Delphi KNN
+// Author: Rodolpho Nascimento
+// Email: contato@essencialcode.com.br
 
 interface
 
