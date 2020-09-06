@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB, System.IOUtils,
   Datasnap.DBClient, Vcl.ComCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.StdCtrls, UKNN, StrUtils, VclTee.TeeGDIPlus, VCLTee.TeEngine,
-  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart;
+  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart, Math;
 
 type
   TFrmMain = class(TForm)
@@ -41,11 +41,18 @@ type
     Panel3: TPanel;
     Chart1: TChart;
     Series1: TBarSeries;
+    Panel4: TPanel;
+    Label5: TLabel;
+    Filter: TEdit;
+    BtFilter: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CdsCustomersAfterScroll(DataSet: TDataSet);
+    procedure BtFilterClick(Sender: TObject);
+    procedure FilterChange(Sender: TObject);
+    procedure FilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     KNN: TKNN;
@@ -72,11 +79,17 @@ var
   I, DataClass: Integer;
 
 begin
+  CdsCustomers.Filtered := False;
+
+
   try
     CdsCustomers.DisableControls;
+
+    // Clear data in object
     KNN.clear_data;
 
 
+    // Collect data to predict into array values
     NewData := [StrToInt(Age.Text),
                 StrToInt(HiringTime.Text),
                 StrToInt(IfThen(Restrict.Checked, '1', '0')),
@@ -84,7 +97,8 @@ begin
                 StrToInt(IfThen(BillsOnTime.Checked, '1', '0'))];
 
 
-
+    // Collect data to train
+    CdsCustomers.First;
     while (not CdsCustomers.Eof) do
     begin
       Data := [CdsCustomersAge.AsInteger,
@@ -99,9 +113,10 @@ begin
       CdsCustomers.Next;
     end;
 
-
+    // Predict
     Result := KNN.predict_new_entry(NewData, StrToInt(Kvalue.Text));
 
+    // Check results
     if Result.ClassPredicted = 1 then
     begin
       Panel3.Caption := 'Good Payer. Grant credit!';
@@ -113,8 +128,9 @@ begin
       Panel3.Font.Color := clRed;
     end;
 
-    Series1.Clear;
 
+    // Plot selection criteria take by K-NN
+    Series1.Clear;
     for i := 0 to Pred(Length(Result.Classes)) do
     begin
       DataClass := Result.Classes[i];
@@ -132,9 +148,29 @@ begin
   end;
 end;
 
+procedure TFrmMain.BtFilterClick(Sender: TObject);
+begin
+  CdsCustomers.Filtered := False;
+  CdsCustomers.Filter   := Filter.Text;
+  CdsCustomers.Filtered := True;
+end;
+
 procedure TFrmMain.CdsCustomersAfterScroll(DataSet: TDataSet);
 begin
   Panel2.Caption := IntToStr(CdsCustomers.RecordCount) + ' customers';
+  Kvalue.Text    := IntToStr(Round(CdsCustomers.RecordCount / 100 * 30));
+end;
+
+procedure TFrmMain.FilterChange(Sender: TObject);
+begin
+  CdsCustomers.Filtered := False;
+end;
+
+procedure TFrmMain.FilterKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+    BtFilter.Click;
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

@@ -13,7 +13,7 @@ type
     FDataCollection: TList<Double>;
   public
     constructor Create;
-    destructor Desyroy;
+    destructor Destroy;
 
     property DataClass: Integer read FDataClass write FDataClass;
     property DataCollection: TList<Double> read FDataCollection;
@@ -196,7 +196,7 @@ begin
   FDataClass := 0;
 end;
 
-destructor TDataPoint.Desyroy;
+destructor TDataPoint.Destroy;
 begin
   FDataCollection.Free;
 end;

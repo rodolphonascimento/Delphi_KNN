@@ -36,16 +36,16 @@ object FrmMain: TFrmMain
     Top = 49
     Width = 741
     Height = 283
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Data to train'
       object DBGrid1: TDBGrid
         Left = 0
-        Top = 0
+        Top = 73
         Width = 733
-        Height = 255
+        Height = 182
         Align = alClient
         DataSource = dsCustomers
         TabOrder = 0
@@ -71,7 +71,7 @@ object FrmMain: TFrmMain
           item
             Expanded = False
             FieldName = 'Restrict'
-            Title.Caption = 'Has restrict?'
+            Title.Caption = 'Restrict?'
             Width = 86
             Visible = True
           end
@@ -97,15 +97,48 @@ object FrmMain: TFrmMain
             Font.Height = -11
             Font.Name = 'Tahoma'
             Font.Style = [fsBold]
-            Title.Caption = 'Good payer?'
+            Title.Caption = 'Good payer? (Label)'
             Title.Font.Charset = DEFAULT_CHARSET
             Title.Font.Color = clNavy
             Title.Font.Height = -11
             Title.Font.Name = 'Tahoma'
             Title.Font.Style = [fsBold]
-            Width = 105
+            Width = 127
             Visible = True
           end>
+      end
+      object Panel4: TPanel
+        Left = 0
+        Top = 0
+        Width = 733
+        Height = 73
+        Align = alTop
+        TabOrder = 1
+        object Label5: TLabel
+          Left = 16
+          Top = 16
+          Width = 83
+          Height = 13
+          Caption = 'Filter expression:'
+        end
+        object Filter: TEdit
+          Left = 16
+          Top = 32
+          Width = 401
+          Height = 21
+          TabOrder = 0
+          OnChange = FilterChange
+          OnKeyDown = FilterKeyDown
+        end
+        object BtFilter: TButton
+          Left = 431
+          Top = 31
+          Width = 75
+          Height = 25
+          Caption = 'Apply filter'
+          TabOrder = 1
+          OnClick = BtFilterClick
+        end
       end
     end
     object TabSheet2: TTabSheet
@@ -222,6 +255,7 @@ object FrmMain: TFrmMain
         Top = 49
         Width = 733
         Height = 206
+        Legend.TextStyle = ltsLeftPercent
         Title.Text.Strings = (
           'TChart')
         Align = alClient
@@ -236,12 +270,12 @@ object FrmMain: TFrmMain
         object Series1: TBarSeries
           BarBrush.BackColor = clDefault
           ColorEachPoint = True
-          Marks.Visible = False
+          Marks.Style = smsValue
           Marks.Callout.Length = 8
           XValues.Name = 'X'
-          XValues.Order = loAscending
+          XValues.Order = loNone
           YValues.Name = 'Bar'
-          YValues.Order = loNone
+          YValues.Order = loAscending
         end
       end
     end
