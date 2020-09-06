@@ -128,7 +128,7 @@ begin
       Panel3.Font.Color := clRed;
     end;
 
-    Panel3.Caption := Panel3.Caption + '. Accuracy: ' + FloatToStr(Result.Accuracy) + '%';
+    Panel3.Caption := Panel3.Caption + '. Reliability: ' + FloatToStr(Result.Reliability) + '%';
 
 
     // Plot selection criteria take by K-NN

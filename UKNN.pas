@@ -30,7 +30,7 @@ type
 
   TKNN_Result = record
     ClassPredicted: Integer;
-    Accuracy: Double;
+    Reliability: Double;
     Classes: TArray<Integer>;
     Frequencies: TArray<Integer>;
   end;
@@ -99,7 +99,7 @@ var
 
 begin
   total := 0;
-  Result.Accuracy := 0;
+  Result.Reliability := 0;
 
 
   for i := 0  to Pred(Length(Result.Frequencies)) do
@@ -111,7 +111,7 @@ begin
   begin
     if Result.Classes[i] = Result.ClassPredicted then
     begin
-      Result.Accuracy := RoundTo((Result.Frequencies[i] / total) * 100, -2);
+      Result.Reliability := RoundTo((Result.Frequencies[i] / total) * 100, -2);
       Break;
     end;
   end;

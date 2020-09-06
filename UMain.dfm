@@ -41,6 +41,10 @@ object FrmMain: TFrmMain
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Data to train'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object DBGrid1: TDBGrid
         Left = 0
         Top = 73
@@ -236,6 +240,10 @@ object FrmMain: TFrmMain
     object TabSheet3: TTabSheet
       Caption = 'Result'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel3: TPanel
         Left = 0
         Top = 0
