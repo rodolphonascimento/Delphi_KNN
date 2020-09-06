@@ -9,7 +9,7 @@ Feel free to use in commercial purposes. Enjoy it!
 ![alt text](https://github.com/rodolphonascimento/Delphi_KNN/blob/master/knn1.png)
 
 
-2) Data to preditc
+2) Data to predict
 ![alt text](https://github.com/rodolphonascimento/Delphi_KNN/blob/master/knn2.png)
 
 
