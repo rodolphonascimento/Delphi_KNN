@@ -137,9 +137,9 @@ begin
     begin
       DataClass := Result.Classes[i];
       if DataClass = 1 then
-        Series1.AddY(Result.Frequencies[i], IntToStr(DataClass), clGreen)
+        Series1.AddY(Result.Frequency[i], IntToStr(DataClass), clGreen)
       else
-        Series1.AddY(Result.Frequencies[i], IntToStr(DataClass), clRed);
+        Series1.AddY(Result.Frequency[i], IntToStr(DataClass), clRed);
     end;
 
     PageControl1.ActivePageIndex := 2;

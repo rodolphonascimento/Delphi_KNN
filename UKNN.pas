@@ -14,13 +14,13 @@ type
   TDataPoint = class
   private
     FDataClass: Integer;
-    FDataCollection: TList<Double>;
+    FFeatures: TList<Double>;
   public
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
 
     property DataClass: Integer read FDataClass write FDataClass;
-    property DataCollection: TList<Double> read FDataCollection;
+    property Features: TList<Double> read FFeatures;
   end;
 
   TComputedResult = class
@@ -32,7 +32,7 @@ type
     ClassPredicted: Integer;
     Reliability: Double;
     Classes: TArray<Integer>;
-    Frequencies: TArray<Integer>;
+    Frequency: TArray<Integer>;
   end;
 
 
@@ -41,15 +41,15 @@ type
     FDataPoints: TObjectList<TDataPoint>;
     function calc_euclidean_distance(DataA, DataB: TArray<Double>): Double;
 
-    procedure compute_accuracy(var Result: TKNN_Result);
+    procedure compute_reliability(var Result: TKNN_Result);
 
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure clear_data;
-    procedure add_training_data(DataClass: Integer; DataCollection: TArray<Double>);
-    function predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): TKNN_Result;
+    procedure add_training_data(DataClass: Integer; Features: TArray<Double>);
+    function predict_new_entry(UnseenData: TArray<Double>; K_value: Integer): TKNN_Result;
   end;
 
 
@@ -58,13 +58,13 @@ implementation
 
 { TKNN }
 
-procedure TKNN.add_training_data(DataClass: Integer; DataCollection: TArray<Double>);
+procedure TKNN.add_training_data(DataClass: Integer; Features: TArray<Double>);
 var
   NewDataPoint: TDataPoint;
 begin
   NewDataPoint := TDataPoint.Create;
   NewDataPoint.DataClass := DataClass;
-  NewDataPoint.DataCollection.AddRange(DataCollection);
+  NewDataPoint.Features.AddRange(Features);
 
   FDataPoints.Add(NewDataPoint);
 end;
@@ -93,7 +93,7 @@ begin
   FDataPoints.Clear;
 end;
 
-procedure TKNN.compute_accuracy(var Result: TKNN_Result);
+procedure TKNN.compute_reliability(var Result: TKNN_Result);
 var
   i, total: Integer;
 
@@ -102,16 +102,16 @@ begin
   Result.Reliability := 0;
 
 
-  for i := 0  to Pred(Length(Result.Frequencies)) do
+  for i := 0  to Pred(Length(Result.Frequency)) do
   begin
-    total := total + Result.Frequencies[i];
+    total := total + Result.Frequency[i];
   end;
 
   for i := 0  to Pred(Length(Result.Classes)) do
   begin
     if Result.Classes[i] = Result.ClassPredicted then
     begin
-      Result.Reliability := RoundTo((Result.Frequencies[i] / total) * 100, -2);
+      Result.Reliability := RoundTo((Result.Frequency[i] / total) * 100, -2);
       Break;
     end;
   end;
@@ -129,15 +129,15 @@ begin
 end;
 
 
-function TKNN.predict_new_entry(UnseeData: TArray<Double>; K_value: Integer): TKNN_Result;
+function TKNN.predict_new_entry(UnseenData: TArray<Double>; K_value: Integer): TKNN_Result;
 var
   DataPoint: TDataPoint;
   Distance, MostFreq: Double;
 
   ComputedResults: TObjectList<TComputedResult>;
-  ClassFrequences: TDictionary<Integer, Integer>;
-  ClassFreq, i, DataClass: Integer;
-  CP: TComputedResult;
+  ClassFrequency: TDictionary<Integer, Integer>;
+  Frequency, i, DataClass: Integer;
+  CR: TComputedResult;
   Comparer: IComparer<TComputedResult>;
 
 
@@ -156,18 +156,18 @@ begin
 
   Result.ClassPredicted := -1;
   ComputedResults       := TObjectList<TComputedResult>.Create;
-  ClassFrequences       := TDictionary<Integer, Integer>.Create;
+  ClassFrequency        := TDictionary<Integer, Integer>.Create;
 
   try
     for DataPoint in FDataPoints do
     begin
-      Distance := calc_euclidean_distance(UnseeData, DataPoint.DataCollection.ToArray);
+      Distance := calc_euclidean_distance(UnseenData, DataPoint.Features.ToArray);
 
       // Insert distance and class to list
-      CP := TComputedResult.Create;
-      CP.DataClass := DataPoint.DataClass;
-      CP.Distance  := Distance;
-      ComputedResults.Add(CP);
+      CR := TComputedResult.Create;
+      CR.DataClass := DataPoint.DataClass;
+      CR.Distance  := Distance;
+      ComputedResults.Add(CR);
     end;
 
     // Sort list by "Distance"
@@ -176,48 +176,48 @@ begin
     // Computer frequency of each class until reach
     // K-value
     i := 0;
-    for CP in ComputedResults do
+    for CR in ComputedResults do
     begin
       Inc(i);
       if i > K_value then
         Break;
 
-      DataClass := CP.DataClass;
+      DataClass := CR.DataClass;
 
-      if ClassFrequences.TryGetValue(DataClass, ClassFreq) then
-        Inc(ClassFreq)
+      if ClassFrequency.TryGetValue(DataClass, Frequency) then
+        Inc(Frequency)
       else
-        ClassFreq := 1;
+        Frequency := 1;
 
-      ClassFrequences.AddOrSetValue(DataClass, ClassFreq);
+      ClassFrequency.AddOrSetValue(DataClass, Frequency);
     end;
 
     // Check the less class score and return class predicted
     MostFreq := -1;
-    for DataClass in ClassFrequences.Keys do
+    for DataClass in ClassFrequency.Keys do
     begin
-      if ClassFrequences.TryGetValue(DataClass, ClassFreq) then
+      if ClassFrequency.TryGetValue(DataClass, Frequency) then
       begin
-        if (ClassFreq > MostFreq) then
+        if (Frequency > MostFreq) then
         begin
-          MostFreq := ClassFreq;
+          MostFreq := Frequency;
           Result.ClassPredicted := DataClass;
         end
         else
-        if ClassFreq = MostFreq then
+        if Frequency = MostFreq then
           raise Exception.Create('Inconclusive result. Add more data and run again');
       end;
     end;
 
-    Result.Classes     := ClassFrequences.Keys.ToArray;
-    Result.Frequencies := ClassFrequences.Values.ToArray;
+    Result.Classes   := ClassFrequency.Keys.ToArray;
+    Result.Frequency := ClassFrequency.Values.ToArray;
 
-    compute_accuracy(Result);
+    compute_reliability(Result);
 
 
   finally
     ComputedResults.Free;
-    ClassFrequences.Free;
+    ClassFrequency.Free;
   end;
 end;
 
@@ -225,13 +225,14 @@ end;
 
 constructor TDataPoint.Create;
 begin
-  FDataCollection := TList<Double>.Create;
+  FFeatures := TList<Double>.Create;
   FDataClass := 0;
 end;
 
 destructor TDataPoint.Destroy;
 begin
-  FDataCollection.Free;
+  inherited;
+  FFeatures.Free;
 end;
 
 end.
