@@ -48,7 +48,7 @@ type
     destructor Destroy; override;
 
     procedure clear_data;
-    procedure add_training_data(DataClass: Integer; Features: TArray<Double>);
+    procedure add_example(DataClass: Integer; Features: TArray<Double>);
     function predict_new_entry(UnseenData: TArray<Double>; K_value: Integer): TKNN_Result;
   end;
 
@@ -58,7 +58,7 @@ implementation
 
 { TKNN }
 
-procedure TKNN.add_training_data(DataClass: Integer; Features: TArray<Double>);
+procedure TKNN.add_example(DataClass: Integer; Features: TArray<Double>);
 var
   NewDataPoint: TDataPoint;
 begin

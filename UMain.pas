@@ -107,7 +107,7 @@ begin
                CdsCustomersSalary.AsFloat,
                StrToInt(IfThen(CdsCustomersBillsOnTime.AsBoolean, '1', '0'))];
 
-      KNN.add_training_data(StrToInt(IfThen(CdsCustomersGoodPayer.AsBoolean, '1', '0')),
+      KNN.add_example(StrToInt(IfThen(CdsCustomersGoodPayer.AsBoolean, '1', '0')),
                             Data);
 
       CdsCustomers.Next;
