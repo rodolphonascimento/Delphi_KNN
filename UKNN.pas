@@ -158,7 +158,10 @@ begin
   ComputedResults       := TObjectList<TComputedResult>.Create;
   ClassFrequency        := TDictionary<Integer, Integer>.Create;
 
+  // Step 1 - Receive new entry by argument
   try
+    // Step 2 - Calculate the new entry distance
+    // with ALL examples
     for DataPoint in FDataPoints do
     begin
       Distance := calc_euclidean_distance(UnseenData, DataPoint.Features.ToArray);
@@ -170,11 +173,11 @@ begin
       ComputedResults.Add(CR);
     end;
 
-    // Sort list by "Distance"
+    // Step 3 - Sort list by "Distance"
     ComputedResults.Sort(Comparer);
 
-    // Computer frequency of each class until reach
-    // K-value
+    // Step 4 - Select results until reach K-value
+    // and compute frequency of each class in selected sample
     i := 0;
     for CR in ComputedResults do
     begin
@@ -192,7 +195,7 @@ begin
       ClassFrequency.AddOrSetValue(DataClass, Frequency);
     end;
 
-    // Check the less class score and return class predicted
+    // Step 5 - Check the most frequency class
     MostFreq := -1;
     for DataClass in ClassFrequency.Keys do
     begin
@@ -209,6 +212,8 @@ begin
       end;
     end;
 
+    // Step 6 - Return class predicted
+    // "Result.ClassPredicted" determined in step above
     Result.Classes   := ClassFrequency.Keys.ToArray;
     Result.Frequency := ClassFrequency.Values.ToArray;
 
