@@ -45,6 +45,7 @@ type
     Label5: TLabel;
     Filter: TEdit;
     BtFilter: TButton;
+    TrackBar: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -53,6 +54,7 @@ type
     procedure BtFilterClick(Sender: TObject);
     procedure FilterChange(Sender: TObject);
     procedure FilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure TrackBarChange(Sender: TObject);
   private
     { Private declarations }
     KNN: TKNN;
@@ -181,7 +183,8 @@ begin
   else
     CdsCustomers.CreateDataSet;
 
-  Kvalue.Text := IntToStr(Round(CdsCustomers.RecordCount / 100 * 30));
+  TrackBar.Max := CdsCustomers.RecordCount;
+  TrackBar.Position := (Round(CdsCustomers.RecordCount / 100 * 30));
 
 
   KNN := TKNN.Create;
@@ -192,6 +195,11 @@ end;
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
   KNN.Destroy;
+end;
+
+procedure TFrmMain.TrackBarChange(Sender: TObject);
+begin
+  Kvalue.Text := IntToStr(TrackBar.Position);
 end;
 
 end.

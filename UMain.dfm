@@ -41,10 +41,6 @@ object FrmMain: TFrmMain
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Data to train'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DBGrid1: TDBGrid
         Left = 0
         Top = 73
@@ -214,8 +210,8 @@ object FrmMain: TFrmMain
         TabOrder = 4
       end
       object Button2: TButton
-        Left = 104
-        Top = 96
+        Left = 383
+        Top = 135
         Width = 201
         Height = 41
         Caption = 'Check credit test!'
@@ -233,17 +229,24 @@ object FrmMain: TFrmMain
         Top = 108
         Width = 49
         Height = 21
+        ReadOnly = True
         TabOrder = 6
         Text = '4'
+      end
+      object TrackBar: TTrackBar
+        Left = 16
+        Top = 135
+        Width = 265
+        Height = 45
+        PageSize = 1
+        PositionToolTip = ptTop
+        TabOrder = 7
+        OnChange = TrackBarChange
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Result'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel3: TPanel
         Left = 0
         Top = 0

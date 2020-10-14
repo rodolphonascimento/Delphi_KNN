@@ -39,7 +39,7 @@ type
   TKNN = class
   private
     FDataPoints: TObjectList<TDataPoint>;
-    function calc_euclidean_distance(DataA, DataB: TArray<Double>): Double;
+    function calc_euclidean_distance(Features_x, Features_y: TArray<Double>): Double;
 
     procedure compute_reliability(var Result: TKNN_Result);
 
@@ -69,20 +69,20 @@ begin
   FDataPoints.Add(NewDataPoint);
 end;
 
-function TKNN.calc_euclidean_distance(DataA, DataB: TArray<Double>): Double;
+function TKNN.calc_euclidean_distance(Features_x, Features_y: TArray<Double>): Double;
 var
   Total, i: Integer;
   Score: Double;
 
 begin
-  Total := Length(DataA);
-  if Total <> Length(DataB) then
-    raise Exception.Create('Developer - Samples "A" and "B" must be same size.');
+  if Length(Features_x) <> Length(Features_y) then
+    raise Exception.Create('Developer - Samples "y" and "x" must be same size.');
 
-  Score  := 0;
+  Score := 0;
+  Total := Length(Features_x);
   for i := 0 to Pred(Total) do
   begin
-    Score := Score + Power(DataA[i]-DataB[i], 2);
+    Score := Score + Power(Features_x[i] - Features_y[i], 2);
   end;
 
   Result := RoundTo(Sqrt(Score), -4);
