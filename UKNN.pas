@@ -85,7 +85,8 @@ begin
     Score := Score + Power(Features_x[i] - Features_y[i], 2);
   end;
 
-  Result := RoundTo(Sqrt(Score), -4);
+  Result := Sqrt(Score);
+  Result := RoundTo(Result, -4);
 end;
 
 procedure TKNN.clear_data;

@@ -7,7 +7,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB, System.IOUtils,
   Datasnap.DBClient, Vcl.ComCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.StdCtrls, UKNN, StrUtils, VclTee.TeeGDIPlus, VCLTee.TeEngine,
-  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart, Math;
+  VCLTee.Series, VCLTee.TeeProcs, VCLTee.Chart, Math,
+  System.Generics.Collections;
 
 type
   TFrmMain = class(TForm)
@@ -46,6 +47,10 @@ type
     Filter: TEdit;
     BtFilter: TButton;
     TrackBar: TTrackBar;
+    GrpStats: TGroupBox;
+    LblAge: TLabel;
+    LblHT: TLabel;
+    LblSalary: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -58,6 +63,8 @@ type
   private
     { Private declarations }
     KNN: TKNN;
+
+    procedure update_stats;
   public
     { Public declarations }
   end;
@@ -157,6 +164,7 @@ begin
   CdsCustomers.Filtered := False;
   CdsCustomers.Filter   := Filter.Text;
   CdsCustomers.Filtered := True;
+  update_stats;
 end;
 
 procedure TFrmMain.CdsCustomersAfterScroll(DataSet: TDataSet);
@@ -167,6 +175,7 @@ end;
 procedure TFrmMain.FilterChange(Sender: TObject);
 begin
   CdsCustomers.Filtered := False;
+  update_stats;
 end;
 
 procedure TFrmMain.FilterKeyDown(Sender: TObject; var Key: Word;
@@ -190,6 +199,8 @@ begin
   KNN := TKNN.Create;
 
   PageControl1.ActivePageIndex := 0;
+
+  update_stats;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
@@ -200,6 +211,49 @@ end;
 procedure TFrmMain.TrackBarChange(Sender: TObject);
 begin
   Kvalue.Text := IntToStr(TrackBar.Position);
+end;
+
+procedure TFrmMain.update_stats;
+var
+  LstAge, LstHT, LstSalary: TList<Double>;
+  Mean, Std: String;
+
+begin
+  CdsCustomers.DisableControls;
+  LstAge    := TList<Double>.Create;
+  LstHT     := TList<Double>.Create;
+  LstSalary := TList<Double>.Create;
+
+  try
+    CdsCustomers.First;
+    while not CdsCustomers.Eof do
+    begin
+      LstAge.Add(CdsCustomersAge.AsInteger);
+      LstHT.Add(CdsCustomersHiringTime.AsInteger);
+      LstSalary.Add(CdsCustomersSalary.AsFloat);
+      CdsCustomers.Next;
+    end;
+
+    Mean := FloatToStr(Trunc(Math.Mean(LstAge.ToArray)));
+    Std  := FloatToStr(Trunc(Math.StdDev(LstAge.ToArray)));
+    LblAge.Caption := 'Age: ' + Mean + ' (mean) ' + Std + ' (std)';
+
+    Mean := FloatToStr(Trunc(Math.Mean(LstHT.ToArray)));
+    Std  := FloatToStr(Trunc(Math.StdDev(LstHT.ToArray)));
+    LblHT.Caption := 'Hiring time: ' + Mean + ' (mean) ' + Std + ' (std)';
+
+    Mean := FloatToStr(Math.RoundTo(Math.Mean(LstSalary.ToArray), -2));
+    Std  := FloatToStr(Math.RoundTo(Math.StdDev(LstSalary.ToArray), -2));
+    LblSalary.Caption := 'Salary: ' + Mean + ' (mean) ' + Std + ' (std)';
+
+
+  finally
+    LstAge.Free;
+    LstHT.Free;
+    LstSalary.Free;
+    CdsCustomers.First;
+    CdsCustomers.EnableControls;
+  end;
 end;
 
 end.

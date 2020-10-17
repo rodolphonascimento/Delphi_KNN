@@ -2,8 +2,8 @@ object FrmMain: TFrmMain
   Left = 0
   Top = 0
   Caption = 'Delphi K-NN example'
-  ClientHeight = 373
-  ClientWidth = 741
+  ClientHeight = 415
+  ClientWidth = 904
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,7 +19,7 @@ object FrmMain: TFrmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 741
+    Width = 904
     Height = 49
     Align = alTop
     Caption = 'Financial Credit'
@@ -34,18 +34,22 @@ object FrmMain: TFrmMain
   object PageControl1: TPageControl
     Left = 0
     Top = 49
-    Width = 741
-    Height = 283
-    ActivePage = TabSheet2
+    Width = 904
+    Height = 325
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 1
     object TabSheet1: TTabSheet
-      Caption = 'Data to train'
+      Caption = 'Examples'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 733
+      ExplicitHeight = 255
       object DBGrid1: TDBGrid
         Left = 0
         Top = 73
-        Width = 733
-        Height = 182
+        Width = 896
+        Height = 224
         Align = alClient
         DataSource = dsCustomers
         TabOrder = 0
@@ -110,10 +114,11 @@ object FrmMain: TFrmMain
       object Panel4: TPanel
         Left = 0
         Top = 0
-        Width = 733
+        Width = 896
         Height = 73
         Align = alTop
         TabOrder = 1
+        ExplicitWidth = 733
         object Label5: TLabel
           Left = 16
           Top = 16
@@ -124,14 +129,14 @@ object FrmMain: TFrmMain
         object Filter: TEdit
           Left = 16
           Top = 32
-          Width = 401
+          Width = 313
           Height = 21
           TabOrder = 0
           OnChange = FilterChange
           OnKeyDown = FilterKeyDown
         end
         object BtFilter: TButton
-          Left = 431
+          Left = 335
           Top = 31
           Width = 75
           Height = 25
@@ -139,11 +144,44 @@ object FrmMain: TFrmMain
           TabOrder = 1
           OnClick = BtFilterClick
         end
+        object GrpStats: TGroupBox
+          Left = 530
+          Top = 5
+          Width = 380
+          Height = 62
+          Caption = 'Stats'
+          TabOrder = 2
+          object LblAge: TLabel
+            Left = 16
+            Top = 20
+            Width = 102
+            Height = 13
+            Caption = 'Age: 10 (avg) 5 (std)'
+          end
+          object LblHT: TLabel
+            Left = 16
+            Top = 39
+            Width = 133
+            Height = 13
+            Caption = 'Hiring time: 10 (avg) 5 (std)'
+          end
+          object LblSalary: TLabel
+            Left = 193
+            Top = 20
+            Width = 133
+            Height = 13
+            Caption = 'Hiring time: 10 (avg) 5 (std)'
+          end
+        end
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Credit test'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 733
+      ExplicitHeight = 255
       object Label1: TLabel
         Left = 24
         Top = 16
@@ -250,7 +288,7 @@ object FrmMain: TFrmMain
       object Panel3: TPanel
         Left = 0
         Top = 0
-        Width = 733
+        Width = 896
         Height = 49
         Align = alTop
         Font.Charset = DEFAULT_CHARSET
@@ -264,8 +302,8 @@ object FrmMain: TFrmMain
       object Chart1: TChart
         Left = 0
         Top = 49
-        Width = 733
-        Height = 206
+        Width = 896
+        Height = 248
         Legend.TextStyle = ltsLeftPercent
         Title.Text.Strings = (
           'TChart')
@@ -293,16 +331,16 @@ object FrmMain: TFrmMain
   end
   object Panel2: TPanel
     Left = 0
-    Top = 332
-    Width = 741
+    Top = 374
+    Width = 904
     Height = 41
     Align = alBottom
     TabOrder = 2
     DesignSize = (
-      741
+      904
       41)
     object Button1: TButton
-      Left = 648
+      Left = 811
       Top = 6
       Width = 75
       Height = 25
